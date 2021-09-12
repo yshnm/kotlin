@@ -5,7 +5,7 @@ import java.lang.RuntimeException
 /**
  * 基本文法
  */
-class Grammar {
+class BaseGrammar {
 
     // 変数の種類
     fun valiableKind() {
@@ -112,5 +112,7 @@ class Grammar {
          // val exception: Nothing = throw RuntimeException("RuntimeException!!")
          // throw exception
     }
+
+
 
 }

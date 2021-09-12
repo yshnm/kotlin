@@ -1,6 +1,6 @@
 package com.example.kotlin_practice
 
-import com.example.kotlin_practice.grammar.Grammar
+import com.example.kotlin_practice.collection.GroupBy
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
@@ -10,7 +10,7 @@ class KotlinPracticeApplication
 fun main(args: Array<String>) {
 
 
-	Grammar().nothingType()
+	GroupBy.groupBy2()
 
 	runApplication<KotlinPracticeApplication>(*args)
 }
