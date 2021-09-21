@@ -1,1 +1,56 @@
-テスト
+<!DOCTYPE html >
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <th:block th:replace="/fragments/common :: common"></th:block>
+  <title>my todo</title>
+</head>
+
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div id="capture_app">
+
+      <div class="row">
+        <div class="six columns">
+          <h2>my todo</h2>
+        </div>
+        <div class="six columns">
+          <h5 class="u-pull-right">2021/05/04</h5>
+        </div>
+      </div>
+
+      <div class="row">
+        <h4>task：4</h4> <!-- TODO 件数表示 -->
+        <hr />
+      </div>
+
+      <div class="row">
+        <!-- 未完了タスクリスト 下で未完了タスクリストをループ -->
+        <span>
+          <th:block th:replace="/fragments/task :: task"></th:block>
+        </span>
+      </div>
+
+      <div class="row">
+        <h4>completed：15</h4> <!-- TODO 件数表示 -->
+        <hr />
+      </div>
+
+      <div class="row">
+        <!-- TODO 完了タスクリスト hidden タップで表示 下で未完了タスクリストをループ -->
+        <span>
+          <th:block th:replace="/fragments/task :: task"></th:block>
+        </span>
+      </div>
+      <hr/>
+    </div>
+  </div>
+
+  <!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+
+</html>

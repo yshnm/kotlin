@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="next_sub_task(nextSubTask)">
+    <li>
+        <span style="width:50px" class="u-pull-left">✓</span>
+        <span th:text="${nextSubTask.name}"></span>
+    </li>
+</th:block>
