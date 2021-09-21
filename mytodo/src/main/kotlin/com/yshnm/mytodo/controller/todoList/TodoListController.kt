@@ -13,6 +13,6 @@ class TodoListController {
      */
     @GetMapping("/")
     fun index() : String {
-        return DisplayTemplate.TODO_LIST.getTemplate()
+        return DisplayTemplate.UPDATE.getTemplate()
     }
 }
