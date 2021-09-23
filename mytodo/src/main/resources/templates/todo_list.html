@@ -19,8 +19,7 @@
 
         <div class="row">
             <div class="row">
-                <h4>task：4</h4> <!-- TODO 件数表示 -->
-                <hr/>
+                <h4>task</h4>
             </div>
 
             <div class="row">
@@ -30,9 +29,10 @@
                 </span>
             </div>
 
+            <hr/>
+
             <div class="row">
-                <h4>completed：15</h4> <!-- TODO 件数表示 -->
-                <hr/>
+                <h4>completed</h4> <!-- TODO 件数表示 -->
             </div>
 
             <div class="row">
@@ -45,9 +45,8 @@
         </div>
     </div>
 </div>
-
-<!-- End Document
-–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+<th:block th:replace="/fragments/common :: script"></th:block>
+<script th:src="@{/js/todo_list_vue.js}"></script>
 </body>
 
 </html>

@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:fragment="next_sub_task(nextSubTask)">
-    <li>
-        <span style="width:50px" class="u-pull-left">✓</span>
-        <span th:text="${nextSubTask.title}"></span>
+    <li style="list-style: none;" data-kind="NEXT_SUB_TASK"
+        th:id="|${nextSubTask.primaryKey.taskId}-${nextSubTask.primaryKey.subTaskId}-${nextSubTask.primaryKey.nextSubTaskId}|">
+        <a style="color:green; font-size:120%; padding-left:150px" class="task-complete"
+           v-on:click="taskComplete" th:if="${task.completeFlg == '0'}">　✓　</a>
+        <a style="color:red; font-size:120%; padding-left:30px"
+           v-on:click="taskDelete">　×　</a>
+        <span style="padding-left:30px" th:text="${nextSubTask.title}"></span>
     </li>
 </th:block>

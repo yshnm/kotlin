@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:fragment="sub_task(subTask)">
-    <li>
-        <span style="width:50px" class="u-pull-left">✓</span>
-        <span th:text="${subTask.title}">✓</span>
-        <ul th:if="${!subTask.nextSubTaskList.isEmpty()}">
-            <span th:each="nextSubTask : ${subTask.nextSubTaskList}">
-                <th:block th:replace="/fragments/next_sub_task :: next_sub_task(${nextSubTask})"></th:block>
-            </span>
+    <li style="list-style: none;" th:id="|${subTask.primaryKey.taskId}-${subTask.primaryKey.subTaskId}|"
+        data-kind="SUB_TASK">
+        <a style="width:50px; color:green; font-size:120%; padding-left:100px"
+           v-on:click="taskComplete"
+           th:if="${task.completeFlg == '0'}">　✓　</a>
+        <a style="width:50px; color:red; font-size:120%; padding-left:30px"
+           v-on:click="taskDelete">　×　</a>
+        <span style="padding-left:30px" th:text="${subTask.title}">✓</span>
+        <ul th:each="nextSubTask : ${subTask.nextSubTaskList}">
+            <th:block th:replace="/fragments/next_sub_task :: next_sub_task(${nextSubTask})"></th:block>
         </ul>
     </li>
 </th:block>
