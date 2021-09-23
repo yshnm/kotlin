@@ -13,14 +13,7 @@
 <div class="container">
     <div id="capture_app">
 
-        <div class="row">
-            <div class="six columns">
-                <h2>my todo</h2>
-            </div>
-            <div class="six columns">
-                <h5 class="u-pull-right">2021/05/04</h5>
-            </div>
-        </div>
+        <th:block th:replace="/fragments/common :: header"></th:block>
 
         <hr/>
 
@@ -32,9 +25,9 @@
 
             <div class="row">
                 <!-- 未完了タスクリスト 下で未完了タスクリストをループ -->
-                <span>
-          <th:block th:replace="/fragments/task :: task()"></th:block>
-        </span>
+                <span th:each="inCompletedTask: ${inCompletedTaskList}" th:if="${!inCompletedTaskList.isEmpty()}">
+                    <th:block th:replace="/fragments/task :: task(${inCompletedTask})"></th:block>
+                </span>
             </div>
 
             <div class="row">
@@ -44,9 +37,9 @@
 
             <div class="row">
                 <!-- TODO 完了タスクリスト hidden タップで表示 下で未完了タスクリストをループ -->
-                <span>
-          <th:block th:replace="/fragments/task :: task()"></th:block>
-        </span>
+                <span th:each="completedTask: ${completedTaskList}" th:if="${!completedTaskList.isEmpty()}">
+                    <th:block th:replace="/fragments/task :: task(${completedTask})"></th:block>
+                </span>
             </div>
             <hr/>
         </div>

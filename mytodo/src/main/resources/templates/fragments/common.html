@@ -17,4 +17,20 @@
     <!-- CSS -->
     <link rel="stylesheet" th:href="@{/css/normalize.css}">
     <link rel="stylesheet" th:href="@{/css/skeleton.css}">
+
+    <!-- JS -->
+    <script th:src="@{/js/vue.js}"></script>
+    <script th:src="@{/js/common.js}"></script>
+
+</th:block>
+
+<th:block th:fragment="header">
+    <div class="row">
+        <div class="six columns">
+            <h2>my todo</h2>
+        </div>
+        <div class="six columns">
+            <h5 class="u-pull-right" id="headerDate" >2021/05/04</h5>
+        </div>
+    </div>
 </th:block>

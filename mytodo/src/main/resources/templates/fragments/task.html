@@ -3,8 +3,8 @@
 <th:block th:fragment="task(task)">
     <li>
         <span style="width:50px" class="u-pull-left">✓</span>
-        <span th:text="${task.name}"></span>
-        <ul th:if="${task.subTaskList.isNotEmpty()}">
+        <span th:text="${task.title}"></span>
+        <ul th:if="${!task.subTaskList.isEmpty()}">
             <span th:each="subTask : ${task.subTaskList}">
                 <th:block th:replace="/fragments/sub_task :: sub_task(${subTask})"></th:block>
             </span>

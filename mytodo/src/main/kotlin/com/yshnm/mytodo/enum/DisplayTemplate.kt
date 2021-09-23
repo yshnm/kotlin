@@ -6,5 +6,5 @@ enum class DisplayTemplate(
     TODO_LIST("todo_list"),
     UPDATE("update");
 
-    fun getTemplate() = this.template
+    fun getName() = this.template
 }

@@ -1,12 +1,12 @@
 package com.yshnm.mytodo.service.test
 
-import com.yshnm.mytodo.entity.TEST
+import com.yshnm.mytodo.entity.Test
 
 interface TestService {
 
     // テストデータ登録
-    fun insertTestData(test: TEST)
+    fun insertTestData(test: Test)
 
     // 全件取得
-    fun findAllTestData(): List<TEST>
+    fun findAllTestData(): List<Test>
 }
