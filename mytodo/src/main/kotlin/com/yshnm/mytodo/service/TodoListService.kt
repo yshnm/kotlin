@@ -19,8 +19,9 @@ interface TodoListService {
 
     /**
      * 削除
+     * TODO タスク削除機能実装予定
      */
-    fun delete(taskKind: TaskKind, id: String)
+    // fun delete(taskKind: TaskKind, id: String)
 
 
 }

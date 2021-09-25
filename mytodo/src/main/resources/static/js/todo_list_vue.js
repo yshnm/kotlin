@@ -1,19 +1,86 @@
 var app = new Vue({
     el: '#capture_app',
     data: {
-        execution_date: null
+        taskList: null,
+        // key:サブタスクのカウント value:ネクストサブタスクのカウント
+        insertSubtaskCount: {0 : 0},
+        inputTask: null,
+        inputSubTaskList: []
     },
     methods: {
         taskComplete: function(event) {
+            // タスク完了処理 サーバ側と非同期通信を行う
             send(event, 'complete')
         },
+        switchInsertArea: function(event) {
+
+            // 登録エリア 表示/非表示切り替え
+            var insertAreaNode = document.querySelector('#update-area');
+
+            if(insertAreaNode.style.display == 'none'
+                || insertAreaNode.style.display == '') {
+                // add...taskボタンクリック時
+
+                // 登録オブジェクト生成
+                this.inputTask = new Object();
+
+                // 登録欄を表示
+                insertAreaNode.style.display = 'block';
+
+                // ボタンの表示値を「cancel」に変更
+                event.target.innerText = 'cancel'
+            } else {
+                // cancelボタンクリック時
+
+                // 登録オブジェクト削除
+                this.inputTask = new Object();
+
+                // 登録欄を非表示
+                insertAreaNode.style.display = 'none';
+
+                // 入力値を削除
+                document.querySelectorAll('#update-area .input-element')
+                    .forEach(element => element.value = '');
+
+                // ボタンの表示値を「add...task」に変更
+                event.target.innerText = 'add...task'
+            }
+
+        }, addSubtask: function(event) {
+
+            var subtaskAreaNode = document.querySelector('#subtask-area');
+
+            // キー(サブタスクのカウント)の最大値
+            var subTaskCount = Object.keys(this.insertSubtaskCount)
+              .reduce((val, nextVal) => Math.max(val, nextVal));
+            subTaskCount++
+
+            // カウントオブジェクトに新しいサブタスクカウントの要素を追加
+            this.insertSubtaskCount[subTaskCount] = 0;
+
+            // サブタスクオブジェクト生成
+            var subTaskObj = Object();
+
+            // カウントを代入
+            subTaskObj.count = subTaskCount;
+
+            // サブタスクオブジェクトを登録リストに代入
+            this.inputSubTaskList.push(subTaskObj);
+        }
+        /*
+          TODO タスク削除処理実装予定
         taskDelete: function(event) {
             send(event, 'delete')
         }
+        */
 
+    },
+    created: function() {
+        // 初期表示時：取得したタスクリストを配列に変換
+        this.taskList = JSON.parse(document.querySelector('#inCompletedTaskList').value);
+        this.inputTask = new Object();
     }
 })
-
 
 
 /*

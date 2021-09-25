@@ -14,34 +14,121 @@
     <div id="capture_app">
 
         <th:block th:replace="/fragments/common :: header"></th:block>
-
-        <hr/>
-
         <div class="row">
+            <hr/>
+
+            <span id="update-area">
+                <div class="row">
+                    <div class="row">
+                        <!-- TODO 更新機能実後、更新時にはタイトルがUPDATEに切り替わる -->
+                        <h2>insert</h2>
+                    </div>
+
+                    <!--タスク追加 -->
+                    <div class="row" style="padding-left:5%;">
+                        <div class="row">
+                            <!-- TODO 更新機能実後、更新時にはタイトルがUPDATEに切り替わる -->
+                            <h4>task</h4>
+
+                            <!-- 入力欄 -->
+                            <div class="row">
+                                <div class="eight columns">
+                                    <div class="row">
+                                        <div class="six columns">
+                                            <label for="title">title</label>
+                                            <input type="text" v-bind:value="inputTask.title" id="title" maxlength="50"
+                                                   class="u-full-width input-element">
+                                        </div>
+                                        <div class="six columns">
+                                            <!-- TODO カレンダー入力補助 -->
+                                            <label for="execution_date">execution_date</label>
+                                            <input type="text" v-bind:value="inputTask.executionDate"
+                                                   id="execution_date" class="u-full-width input-element">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <label for="detail">detail</label>
+                                        <textarea v-bind:value="inputTask.detail" id="detail"
+                                                  class="u-full-width input-element"></textarea>
+                                    </div>
+
+                                    <!-- サブサブタスク追加ボタン。押される度にサブサブタスク入力欄が1行増える -->
+                                    <button v-on:click="addSubtask">add...subtask</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="dotted-line-hr"/>
+
+                    <!-- サブタスク -->
+                    <div class="row" style="padding-left:5%;">
+                            <section v-for="(subTask, index) in inputSubTaskList" v-bind:key="index">
+                                <h4>sub task : {{subTask.count}}</h4>
+                                <div class="row">
+                                    <div class="eight columns">
+
+                                        <div class="row">
+                                            <div class="six columns">
+                                                <label for="title">title</label>
+                                                <input type="text" v-bind:value="subTask.title" maxlength="50"
+                                                       class="u-full-width input-element">
+                                            </div>
+                                            <div class="six columns">
+                                                <label for="execution_date">execution_date</label>
+                                                <input type="text" v-bind:value="subTask.execution_date"
+                                                       class="u-full-width input-element">
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <label for="detail">detail</label>
+                                            <textarea v-bind:value="subTask.detail"
+                                                      class="u-full-width input-element"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                    </div>
+
+                    </div>
+                <hr/>
+            </span>
+
             <div class="row">
-                <h4>task</h4>
+                <h3>task list</h3>
             </div>
 
             <div class="row">
+                <input type="hidden" id="inCompletedTaskList" th:value="${inCompletedTaskList}"/>
                 <!-- 未完了タスクリスト 下で未完了タスクリストをループ -->
-                <span th:each="inCompletedTask: ${inCompletedTaskList}" th:if="${!inCompletedTaskList.isEmpty()}">
-                    <th:block th:replace="/fragments/task :: task(${inCompletedTask})"></th:block>
-                </span>
+
+                <!-- タスク-->
+                <ul v-for="task in taskList" :key="task.key">
+                    <li style="list-style: none;" data-kind="TASK" v-bind:id="task.key">
+                        <a style="color:green; font-size:120%; padding-left:50px;" class="task-complete"
+                           v-on:click="taskComplete">　✓　</a>
+                        <span style="padding-left:30px">{{ task.title }}</span>
+                        <ul v-for="subTask in task.subTaskList" :key="subTask.key">
+                            <li style="list-style: none;" v-bind:id="subTask.key"
+                                data-kind="SUB_TASK">
+                                <a style="width:50px; color:green; font-size:120%; padding-left:100px"
+                                   v-on:click="taskComplete">　✓　</a>
+                                <span style="padding-left:30px">{{ subTask.title }}</span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
 
             <hr/>
 
+            <!-- TODO 完了タスクリスト表示機能実装予定 -->
             <div class="row">
-                <h4>completed</h4> <!-- TODO 件数表示 -->
+                <button v-on:click="switchInsertArea" class="button button-primary">add...task</button>
             </div>
 
-            <div class="row">
-                <!-- TODO 完了タスクリスト hidden タップで表示 下で未完了タスクリストをループ -->
-                <span th:each="completedTask: ${completedTaskList}" th:if="${!completedTaskList.isEmpty()}">
-                    <th:block th:replace="/fragments/task :: task(${completedTask})"></th:block>
-                </span>
-            </div>
-            <hr/>
         </div>
     </div>
 </div>

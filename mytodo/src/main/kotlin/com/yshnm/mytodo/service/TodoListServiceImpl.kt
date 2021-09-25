@@ -1,12 +1,10 @@
 package com.yshnm.mytodo.service
 
-import com.yshnm.mytodo.const.FLG
+import com.yshnm.mytodo.const.Const
 import com.yshnm.mytodo.entity.*
 import com.yshnm.mytodo.enum.TaskKind
-import com.yshnm.mytodo.repository.NextSubTaskRepository
 import com.yshnm.mytodo.repository.SubTaskRepository
 import com.yshnm.mytodo.repository.TaskRepository
-import com.yshnm.mytodo.repository.test.TestRepository
 import com.yshnm.mytodo.utility.SpecificationCreateUtil
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
@@ -16,7 +14,6 @@ import javax.persistence.EntityManager
 class TodoListServiceImpl(
     private val taskRepository: TaskRepository,
     private val subTaskRepository: SubTaskRepository,
-    private val nextSubTaskRepository: NextSubTaskRepository,
     private val entityManager: EntityManager
 ): TodoListService {
 
@@ -30,17 +27,17 @@ class TodoListServiceImpl(
 
         // 未完了タスクリスト取得
         val inCompletedTaskList: List<Task> = taskList
-            .filter { FLG.OFF == it.completeFlg }
+            .filter { Const.FLG_OFF == it.completeFlg }
             .map { task ->
-                task.subTaskList = getSubTaskList(task, FLG.OFF)
+                task.subTaskList = getSubTaskList(task, Const.FLG_OFF)
                 task
             }
 
         // 完了済タスクリスト取得
         val completedTaskList: List<Task> = taskList
-            .filter { FLG.ON == it.completeFlg }
+            .filter { Const.FLG_ON == it.completeFlg }
             .map { task ->
-                task.subTaskList = getSubTaskList(task, FLG.ON)
+                task.subTaskList = getSubTaskList(task, Const.FLG_ON)
                 task
             }
 
@@ -53,7 +50,7 @@ class TodoListServiceImpl(
     /**
      * 完了化
      */
-    override fun complete(taskKind: TaskKind, id: String){
+    override fun complete(taskKind: TaskKind, id: String) {
 
         // 完了させたタスクの下位のタスクも全て完了化する
         when (taskKind) {
@@ -62,25 +59,20 @@ class TodoListServiceImpl(
                 val taskId = id.toInt()
                 completeTask(taskId)
                 completeSubTask(taskId, null)
-                completeNextSubTask(taskId, null, null)
 
             }
             TaskKind.SUB_TASK -> {
                 val idList: List<String> = id.split("-")
                 completeSubTask(idList[0].toInt(), idList[1].toInt())
-                completeNextSubTask(idList[0].toInt(), idList[1].toInt(), null)
-            }
-            TaskKind.NEXT_SUB_TASK -> {
-                val idList: List<String> = id.split("-")
-                completeNextSubTask(idList[0].toInt(), idList[1].toInt(), idList[2].toInt())
             }
         }
     }
 
 
     /**
-     * タスク削除
+     * TODO タスク削除機能実装予定
      */
+    /*
     override fun delete(taskKind: TaskKind, id: String) {
 
         // 削除したタスクの下位のタスクも全て削除する
@@ -98,47 +90,27 @@ class TodoListServiceImpl(
                 deleteSubTask(idList[0].toInt(), idList[1].toInt())
                 deleteNextSubTask(idList[0].toInt(), idList[1].toInt(), null)
             }
-            TaskKind.NEXT_SUB_TASK -> {
-                val idList: List<String> = id.split("-")
-                deleteNextSubTask(idList[0].toInt(), idList[1].toInt(), idList[2].toInt())
-            }
         }
 
     }
+    */
 
 
     /**
      * サブタスクリスト一覧取得
      *   サブタスクリストの一覧を取得後、ネクストサブタスクリストを取得する
      */
-    private fun getSubTaskList(task: Task, completeFlg: String) : List<SubTask> {
+    private fun getSubTaskList(task: Task, completeFlg: String): List<SubTask> {
 
         // サブタスクリスト取得
-        val subTaskList: List<SubTask> = subTaskRepository.findAll(
+        return subTaskRepository.findAll(
             Specification.where(
-                SpecificationCreateUtil.taskIdEqual<SubTask>(task.taskId, TaskKind.SUB_TASK)
+                SpecificationCreateUtil.equalTaskId<SubTask>(task.taskId, TaskKind.SUB_TASK)
                     ?.and(SpecificationCreateUtil.equalCompleteFlg(completeFlg))
             )
         )
-
-        return subTaskList.map {subTask ->
-            subTask.nextSubTaskList = getNextSubTaskList(subTask, completeFlg)
-            subTask
-        }
     }
 
-    /**
-     * ネクストサブタスクリスト一覧取得
-     */
-    private fun getNextSubTaskList(subTask: SubTask, completeFlg: String) : List<NextSubTask> {
-        return nextSubTaskRepository.findAll(
-            Specification.where(
-                    SpecificationCreateUtil.taskIdEqual<NextSubTask>(subTask.primaryKey.taskId, TaskKind.NEXT_SUB_TASK)
-                    ?.and(SpecificationCreateUtil.subTaskIdEqual<NextSubTask>(subTask.primaryKey.subTaskId))
-                        ?.and(SpecificationCreateUtil.equalCompleteFlg(completeFlg))
-            )
-        )
-    }
 
     /**
      * タスク 完了化
@@ -147,10 +119,10 @@ class TodoListServiceImpl(
 
         val taskList = taskRepository.findAll(
             Specification.where(
-                SpecificationCreateUtil.taskIdEqual<Task>(taskId, TaskKind.TASK)
+                SpecificationCreateUtil.equalTaskId<Task>(taskId, TaskKind.TASK)
             )
         ).map {
-            it.completeFlg = FLG.ON
+            it.completeFlg = Const.FLG_ON
             it
         }
 
@@ -164,43 +136,25 @@ class TodoListServiceImpl(
 
         val subTaskList = subTaskRepository.findAll(
             Specification.where(
-                SpecificationCreateUtil.taskIdEqual<SubTask>(taskId, TaskKind.SUB_TASK)?.and(
-                    SpecificationCreateUtil.subTaskIdEqual<SubTask>(subTaskId)
+                SpecificationCreateUtil.equalTaskId<SubTask>(taskId, TaskKind.SUB_TASK)?.and(
+                    SpecificationCreateUtil.equalSubTaskId<SubTask>(subTaskId)
                 )
             )
         ).map {
-            it.completeFlg = FLG.ON
+            it.completeFlg = Const.FLG_ON
             it
         }
 
         subTaskRepository.saveAll(subTaskList)
     }
 
-    /**
-     * ネスクトサブタスク 完了化
-     */
-    private fun completeNextSubTask(taskId: Int?, subTaskId: Int?, nextSubTaskId: Int?) {
 
-        val nextSubTaskList = nextSubTaskRepository.findAll(
-            Specification.where(
-                SpecificationCreateUtil.taskIdEqual<NextSubTask>(taskId, TaskKind.NEXT_SUB_TASK)?.and(
-                    SpecificationCreateUtil.subTaskIdEqual<NextSubTask>(subTaskId)?.and(
-                        SpecificationCreateUtil.nextSubTaskIdEqual(nextSubTaskId)
-                    )
-                )
-            )
-        ).map {
-            it.completeFlg = FLG.ON
-            it
-        }
-
-        nextSubTaskRepository.saveAll(nextSubTaskList)
-    }
 
     /**
      * タスク 削除
+     * TODO タスク削除機能実装予定
      */
-    private fun deleteTask(taskId: Int) {
+    /*private fun deleteTask(taskId: Int) {
 
         val taskList = taskRepository.findAll(
             Specification.where(
@@ -212,12 +166,13 @@ class TodoListServiceImpl(
         }
 
         taskRepository.deleteAll(taskList)
-    }
+    }*/
 
     /**
      * サブタスク 削除
+     * TODO タスク削除機能実装予定
      */
-    private fun deleteSubTask(taskId: Int?, subTaskId: Int?) {
+    /*private fun deleteSubTask(taskId: Int?, subTaskId: Int?) {
 
         val subTaskList = subTaskRepository.findAll(
             Specification.where(
@@ -231,28 +186,6 @@ class TodoListServiceImpl(
         }
 
         subTaskRepository.deleteAll(subTaskList)
-    }
-
-    /**
-     * ネスクトサブタスク 削除
-     */
-    private fun deleteNextSubTask(taskId: Int?, subTaskId: Int?, nextSubTaskId: Int?) {
-
-        val nextSubTaskList = nextSubTaskRepository.findAll(
-            Specification.where(
-                SpecificationCreateUtil.taskIdEqual<NextSubTask>(taskId, TaskKind.NEXT_SUB_TASK)?.and(
-                    SpecificationCreateUtil.subTaskIdEqual<NextSubTask>(subTaskId)?.and(
-                        SpecificationCreateUtil.nextSubTaskIdEqual(nextSubTaskId)
-                    )
-                )
-            )
-        ).map {
-            it.completeFlg = FLG.ON
-            it
-        }
-
-        nextSubTaskRepository.deleteAll(nextSubTaskList)
-    }
-
+    }*/
 
 }
