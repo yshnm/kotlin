@@ -18,6 +18,12 @@ interface TodoListService {
     fun complete(taskKind: TaskKind, id: String)
 
     /**
+     * 登録
+     */
+    fun insert(taskObject: Map<String, Object>)
+
+
+    /**
      * 削除
      * TODO タスク削除機能実装予定
      */

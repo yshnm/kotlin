@@ -58,6 +58,25 @@ class TodoListController(
         return id
     }
 
+    @ResponseBody
+    @PostMapping("/insert")
+    fun insert(
+        @RequestBody taskObject: Map<String, Object>,
+        model: Model
+    ): String {
+
+        // Taskオブジェクトに変換
+
+        // 登録処理
+        todoService.insert(taskObject)
+
+        // 一覧表示データ取得
+        val taskLists: TaskLists = todoService.findAll();
+
+        return JsonUtil.toJsonForTaskList(taskLists.inCompletedTaskList)
+    }
+
+
     /*
       TODO タスク削除機能実装予定
     @ResponseBody

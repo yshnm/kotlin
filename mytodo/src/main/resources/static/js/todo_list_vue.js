@@ -15,7 +15,7 @@ var app = new Vue({
         switchInsertArea: function(event) {
 
             // 登録エリア 表示/非表示切り替え
-            var insertAreaNode = document.querySelector('#update-area');
+            var insertAreaNode = document.querySelector('#insert-area');
 
             if(insertAreaNode.style.display == 'none'
                 || insertAreaNode.style.display == '') {
@@ -30,20 +30,18 @@ var app = new Vue({
                 // ボタンの表示値を「cancel」に変更
                 event.target.innerText = 'cancel'
             } else {
-                // cancelボタンクリック時
+               // 登録オブジェクト削除
+               this.inputTask = new Object();
 
-                // 登録オブジェクト削除
-                this.inputTask = new Object();
+               // 登録欄を非表示
+               insertAreaNode.style.display = 'none';
 
-                // 登録欄を非表示
-                insertAreaNode.style.display = 'none';
+               // 入力値を削除
+               document.querySelectorAll('#insert-area .input-element')
+                   .forEach(element => element.value = '');
 
-                // 入力値を削除
-                document.querySelectorAll('#update-area .input-element')
-                    .forEach(element => element.value = '');
-
-                // ボタンの表示値を「add...task」に変更
-                event.target.innerText = 'add...task'
+               // ボタンの表示値を「add...task」に変更
+               event.target.innerText = 'add...task'
             }
 
         }, addSubtask: function(event) {
@@ -59,13 +57,41 @@ var app = new Vue({
             this.insertSubtaskCount[subTaskCount] = 0;
 
             // サブタスクオブジェクト生成
-            var subTaskObj = Object();
+            var subTaskObj = new Object();
 
             // カウントを代入
             subTaskObj.count = subTaskCount;
 
             // サブタスクオブジェクトを登録リストに代入
             this.inputSubTaskList.push(subTaskObj);
+
+        }, insert: function(event) {
+            // 登録処理
+
+            var taskObj = new Object();
+
+            taskObj.title = this.inputTask.title;
+            taskObj.detail = this.inputTask.detail;
+            taskObj.executionDate = this.inputTask.execution_date;
+
+            var subTaskList = this.inputSubTaskList.map(element => {
+
+                var subTaskObj = new Object();
+                subTaskObj.title = element.title;
+                subTaskObj.detail = element.detail;
+                subTaskObj.executionDate = element.execution_date;
+
+                return subTaskObj;
+            })
+
+            taskObj.subTaskList = subTaskList;
+
+            var newTaskList = insertPost(event, JSON.stringify(taskObj));
+
+            this.taskList = newTaskList;
+
+            // 登録・一覧再描画後「chancel」ボタンをクリックし、insertエリアを閉じる
+            document.querySelector('#add-task-btn').click();
         }
         /*
           TODO タスク削除処理実装予定
@@ -113,4 +139,21 @@ function send(event, operation) {
     xmlHttpRequest.open('GET', event.target.baseURI + operation + '/'+ id + '/' +  taskKind);
     xmlHttpRequest.setRequestHeader('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
     xmlHttpRequest.send();
+}
+
+
+function insertPost(event, obj) {
+
+    var xmlHttpRequest = new XMLHttpRequest();
+
+    //【手順4】リクエストメソッドと読み込むファイルのパスを指定する。
+    xmlHttpRequest.open('POST', event.target.baseURI + 'insert', false);
+    xmlHttpRequest.setRequestHeader('Content-Type', 'application/json');
+    xmlHttpRequest.setRequestHeader("Accept","application/json");
+
+    xmlHttpRequest.send(obj);
+
+    if(xmlHttpRequest.status == 200) {
+         return JSON.parse(xmlHttpRequest.response);
+    }
 }

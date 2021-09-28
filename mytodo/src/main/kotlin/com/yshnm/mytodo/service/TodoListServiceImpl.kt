@@ -5,6 +5,7 @@ import com.yshnm.mytodo.entity.*
 import com.yshnm.mytodo.enum.TaskKind
 import com.yshnm.mytodo.repository.SubTaskRepository
 import com.yshnm.mytodo.repository.TaskRepository
+import com.yshnm.mytodo.utility.JsonUtil
 import com.yshnm.mytodo.utility.SpecificationCreateUtil
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
@@ -68,6 +69,20 @@ class TodoListServiceImpl(
         }
     }
 
+    override fun insert(taskObject: Map<String, Object>) {
+
+        // タスクIDの最大値を取得
+        val maxTaskId: Int = (taskRepository.findAll().maxOf { task -> task.taskId }) + 1
+
+        // サブオブジェクト作成
+        val task: Task = JsonUtil.toTaskObject(taskObject, maxTaskId)
+
+        // タスク 登録
+        taskRepository.save(task)
+
+        // サブタスク 登録
+        subTaskRepository.saveAll(task.subTaskList)
+    }
 
     /**
      * TODO タスク削除機能実装予定
