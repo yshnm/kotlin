@@ -1,8 +1,10 @@
 package com.yshnm.mytodo.const
 
-import java.time.format.DateTimeFormatter
 
-object Const {
+/**
+ * 共通定数クラス
+ */
+object CommonConst {
 
     const val FLG_ON: String = "1"
 

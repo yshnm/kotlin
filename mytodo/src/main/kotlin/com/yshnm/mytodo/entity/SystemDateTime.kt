@@ -4,7 +4,7 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 
 /**
- * 共通日付クラス
+ * 日時に関する utilityクラス
  */
 class SystemDateTime(
     private val systemDateTime: LocalDateTime

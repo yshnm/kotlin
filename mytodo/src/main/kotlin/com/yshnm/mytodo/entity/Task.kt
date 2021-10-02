@@ -1,9 +1,11 @@
 package com.yshnm.mytodo.entity
 
-import java.sql.Timestamp
 import javax.persistence.*
 import kotlin.jvm.Transient
 
+/**
+ * タスクEntity
+ */
 @Entity
 @Table(name = "task")
 data class Task(

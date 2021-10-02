@@ -1,8 +1,10 @@
 package com.yshnm.mytodo.entity
 
 import javax.persistence.*
-import kotlin.jvm.Transient
 
+/**
+ * サブタスクEntity
+ */
 @Entity
 @Table(name = "SUB_TASK")
 data class SubTask(

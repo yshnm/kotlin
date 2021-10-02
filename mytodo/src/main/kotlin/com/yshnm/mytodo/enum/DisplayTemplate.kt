@@ -1,10 +1,10 @@
 package com.yshnm.mytodo.enum
 
+/**
+ * 表示テンプレート定数クラス
+ */
 enum class DisplayTemplate(
-    private val template: String
+    public val templateName: String
 ) {
-    TODO_LIST("todo_list"),
-    UPDATE("update");
-
-    fun getName() = this.template
+    TODO_LIST("todo_list");
 }

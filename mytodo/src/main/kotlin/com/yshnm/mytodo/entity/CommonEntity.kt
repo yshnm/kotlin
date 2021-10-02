@@ -1,13 +1,12 @@
 package com.yshnm.mytodo.entity
 
-import com.yshnm.mytodo.const.Const
-import com.yshnm.mytodo.utility.DateTimeUtil
+import com.yshnm.mytodo.const.CommonConst
 import java.sql.Timestamp
-import java.time.Instant
-import java.time.LocalDateTime
 import javax.persistence.*
 
-
+/**
+ * タスク・サブタスクの共通項目を定義した親クラスEntity
+ */
 @MappedSuperclass
 open class CommonEntity {
 
@@ -21,7 +20,7 @@ open class CommonEntity {
 
     // 完了フラグ
     @Column(name = "complete_flg")
-    var completeFlg: String = Const.FLG_OFF
+    var completeFlg: String = CommonConst.FLG_OFF
 
     // 実行期限
     @Column(name = "execution_date")
@@ -34,5 +33,4 @@ open class CommonEntity {
     // 更新日時
     @Column(name = "update_datetime")
     var updateDatetime: Timestamp? = null
-
 }

@@ -10,6 +10,8 @@ object SpecificationCreateUtil {
     /**
      * JPA 検索条件
      * 完了済フラグ = "1"（完了済み）
+     *
+     * @param completeFlg 完了フラグ
      */
     fun <T: CommonEntity> equalCompleteFlg(completeFlg: String): Specification<T> {
         return Specification { root: Root<T>, criteriaQuery, criteriaBuilder ->
@@ -20,6 +22,9 @@ object SpecificationCreateUtil {
     /**
      * JPA 検索条件
      * タスクID = 引数．タスクID
+     *
+     * @param taskId タスクID
+     * @param taskKind タスク種別
      */
     fun <T: CommonEntity> equalTaskId(taskId: Int?, taskKind: TaskKind): Specification<T>? {
 
@@ -37,8 +42,9 @@ object SpecificationCreateUtil {
 
     /**
      * JPA 検索条件
-     * タスクID = 引数．タスクID
-     * and サブタスクID = 引数．サブタスクID
+     * サブタスクID = 引数．サブタスクID
+     *
+     * @param subTaskId サブタスクID
      */
     fun <T: CommonEntity> equalSubTaskId(subTaskId: Int?): Specification<T>? {
 

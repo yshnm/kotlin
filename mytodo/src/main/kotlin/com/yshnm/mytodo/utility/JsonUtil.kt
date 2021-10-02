@@ -1,25 +1,23 @@
 package com.yshnm.mytodo.utility
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.util.JSONPObject
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
-import com.yshnm.mytodo.const.Const
+import com.yshnm.mytodo.const.CommonConst
 import com.yshnm.mytodo.entity.SubTask
 import com.yshnm.mytodo.entity.SubTaskKey
 import com.yshnm.mytodo.entity.Task
-import java.sql.Timestamp
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.ArrayList
-import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
+/**
+ * JSON変換用 utilityクラス
+ */
 object JsonUtil {
 
-    private val format: DateTimeFormatter = DateTimeFormatter.ofPattern(Const.DATETIME_FORMAT)
+    private val format: DateTimeFormatter = DateTimeFormatter.ofPattern(CommonConst.DATETIME_FORMAT)
 
+    /**
+     * タスクリスト -> JSON文字列へ変換
+     * @param taskList タスクリスト
+     * @return JSON文字列
+     */
     fun toJsonForTaskList(taskList: List<Task>): String {
 
         val json: String =taskList.joinToString(separator = ",") { task ->
@@ -32,9 +30,9 @@ object JsonUtil {
             sb.append("\"title\":\"${task.title}\",")
             sb.append("\"detail\":\"${task.detail}\",")
             sb.append("\"completeFlg\":\"${task.completeFlg}\",")
-            sb.append("\"executionDate\":\"${task.executionDate?.toLocalDateTime()?.format(format)}\",")
-            sb.append("\"createDatetime\":\"${task.createDatetime?.toLocalDateTime()?.format(format)}\",")
-            sb.append("\"updateDatetime\":\"${task.updateDatetime?.toLocalDateTime()?.format(format)}\",")
+            sb.append("\"executionDate\":\"${task.executionDate?.toLocalDateTime()?.format(format) ?: ""}\",")
+            sb.append("\"createDatetime\":\"${task.createDatetime?.toLocalDateTime()?.format(format) ?: ""}\",")
+            sb.append("\"updateDatetime\":\"${task.updateDatetime?.toLocalDateTime()?.format(format) ?: ""}\",")
             // サブタスク JSON化
             sb.append("\"subTaskList\":[${toJsonForSubTaskList(task.subTaskList)}]")
             sb.append("}")
@@ -44,6 +42,11 @@ object JsonUtil {
         return "[$json]"
     }
 
+    /**
+     * サブタスクリスト -> JSON文字列へ変換
+     * @param subTaskList サブタスクリスト
+     * @return JSON文字列
+     */
     private fun toJsonForSubTaskList(subTaskList: List<SubTask>): String {
 
         return subTaskList.joinToString(separator = ",") { subTask ->
@@ -55,17 +58,22 @@ object JsonUtil {
             sb.append("\"title\":\"${subTask.title}\",")
             sb.append("\"detail\":\"${subTask.detail}\",")
             sb.append("\"completeFlg\":\"${subTask.completeFlg}\",")
-            sb.append("\"executionDate\":\"${subTask.executionDate?.toLocalDateTime()?.format(format)}\",")
-            sb.append("\"createDatetime\":\"${subTask.createDatetime?.toLocalDateTime()?.format(format)}\",")
-            sb.append("\"updateDatetime\":\"${subTask.updateDatetime?.toLocalDateTime()?.format(format)}\"")
+            sb.append("\"executionDate\":\"${subTask.executionDate?.toLocalDateTime()?.format(format) ?: ""}\",")
+            sb.append("\"createDatetime\":\"${subTask.createDatetime?.toLocalDateTime()?.format(format) ?: ""}\",")
+            sb.append("\"updateDatetime\":\"${subTask.updateDatetime?.toLocalDateTime()?.format(format) ?: ""}\"")
             sb.append("}")
             sb.toString()
         }
     }
 
-    fun toTaskObject(taskObj: Map<String, Object>, insertTaskId: Int): Task {
+    /**
+     * JSON -> タスクオブジェクトへ変換
+     * @param taskObject 画面側から渡されたJSON形式のデータが含まれたオブジェクト
+     * @param insertTaskId 登録タスクID
+     */
+    fun toTaskObjectForJson(taskObject: Map<String, Object>, insertTaskId: Int): Task {
 
-        val jsonSubTaskList = taskObj["subTaskList"] as List<Map<String, String>>
+        val jsonSubTaskList = taskObject["subTaskList"] as List<Map<String, String>>
 
         val subTaskList = jsonSubTaskList.mapIndexed { insertSubTaskId, subTaskMap ->
 
@@ -78,7 +86,7 @@ object JsonUtil {
 
             subTask.title = subTaskMap["title"].toString()
             subTask.detail = subTaskMap["detail"].toString()
-            subTask.completeFlg = Const.FLG_OFF
+            subTask.completeFlg = CommonConst.FLG_OFF
             subTask.createDatetime = DateTimeUtil.getNowDateTime().toTimeStamp()
             subTask.updateDatetime = DateTimeUtil.getNowDateTime().toTimeStamp()
             subTask
@@ -88,13 +96,12 @@ object JsonUtil {
             taskId = insertTaskId,
             subTaskList = subTaskList
         )
-        task.title = taskObj["title"].toString()
-        task.detail = taskObj["detail"].toString()
-        task.completeFlg = Const.FLG_OFF
+        task.title = taskObject["title"].toString()
+        task.detail = taskObject["detail"].toString()
+        task.completeFlg = CommonConst.FLG_OFF
         task.createDatetime = DateTimeUtil.getNowDateTime().toTimeStamp()
         task.updateDatetime = DateTimeUtil.getNowDateTime().toTimeStamp()
 
         return task
-
     }
 }

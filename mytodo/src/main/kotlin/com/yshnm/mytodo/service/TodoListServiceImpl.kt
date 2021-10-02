@@ -1,6 +1,6 @@
 package com.yshnm.mytodo.service
 
-import com.yshnm.mytodo.const.Const
+import com.yshnm.mytodo.const.CommonConst
 import com.yshnm.mytodo.entity.*
 import com.yshnm.mytodo.enum.TaskKind
 import com.yshnm.mytodo.repository.SubTaskRepository
@@ -11,56 +11,48 @@ import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import javax.persistence.EntityManager
 
+/**
+ * todoList操作用サービス実装
+ */
 @Service
 class TodoListServiceImpl(
     private val taskRepository: TaskRepository,
     private val subTaskRepository: SubTaskRepository,
     private val entityManager: EntityManager
-): TodoListService {
+) : TodoListService {
 
     /**
-     * 画面表示時 タスク一覧取得
+     * 一覧表示データ取得
+     * @param completeFlg 完了フラグ
+     * @return 一覧表示リスト
      */
-    override fun findAll(): TaskLists {
+    override fun findList(completeFlg: String): List<Task> {
 
         // タスクリスト取得
         val taskList: List<Task> = taskRepository.findAll()
 
         // 未完了タスクリスト取得
-        val inCompletedTaskList: List<Task> = taskList
-            .filter { Const.FLG_OFF == it.completeFlg }
+        return taskList
+            .filter { it.completeFlg == completeFlg }
             .map { task ->
-                task.subTaskList = getSubTaskList(task, Const.FLG_OFF)
+                task.subTaskList = getSubTaskList(task, completeFlg)
                 task
             }
-
-        // 完了済タスクリスト取得
-        val completedTaskList: List<Task> = taskList
-            .filter { Const.FLG_ON == it.completeFlg }
-            .map { task ->
-                task.subTaskList = getSubTaskList(task, Const.FLG_ON)
-                task
-            }
-
-        return TaskLists(
-            completedTaskList = completedTaskList,
-            inCompletedTaskList = inCompletedTaskList
-        )
     }
 
     /**
-     * 完了化
+     * タスク完了
+     * @param taskKind タスク種別
+     * @param id タスクID or サブタスクID
      */
     override fun complete(taskKind: TaskKind, id: String) {
 
         // 完了させたタスクの下位のタスクも全て完了化する
         when (taskKind) {
             TaskKind.TASK -> {
-
                 val taskId = id.toInt()
                 completeTask(taskId)
                 completeSubTask(taskId, null)
-
             }
             TaskKind.SUB_TASK -> {
                 val idList: List<String> = id.split("-")
@@ -69,13 +61,17 @@ class TodoListServiceImpl(
         }
     }
 
+    /**
+     * 新規タスク登録
+     * @param taskObject タスクの情報が含まれたオブジェクト
+     */
     override fun insert(taskObject: Map<String, Object>) {
 
         // タスクIDの最大値を取得
         val maxTaskId: Int = (taskRepository.findAll().maxOf { task -> task.taskId }) + 1
 
         // サブオブジェクト作成
-        val task: Task = JsonUtil.toTaskObject(taskObject, maxTaskId)
+        val task: Task = JsonUtil.toTaskObjectForJson(taskObject, maxTaskId)
 
         // タスク 登録
         taskRepository.save(task)
@@ -85,9 +81,10 @@ class TodoListServiceImpl(
     }
 
     /**
-     * TODO タスク削除機能実装予定
+     * タスク削除
+     * @param taskKind タスク種別
+     * @param id タスクID or サブタスクID
      */
-    /*
     override fun delete(taskKind: TaskKind, id: String) {
 
         // 削除したタスクの下位のタスクも全て削除する
@@ -97,23 +94,20 @@ class TodoListServiceImpl(
                 val taskId = id.toInt()
                 deleteTask(taskId)
                 deleteSubTask(taskId, null)
-                deleteNextSubTask(taskId, null, null)
 
             }
             TaskKind.SUB_TASK -> {
                 val idList: List<String> = id.split("-")
                 deleteSubTask(idList[0].toInt(), idList[1].toInt())
-                deleteNextSubTask(idList[0].toInt(), idList[1].toInt(), null)
             }
         }
 
     }
-    */
-
 
     /**
      * サブタスクリスト一覧取得
-     *   サブタスクリストの一覧を取得後、ネクストサブタスクリストを取得する
+     * @param task タスクオブジェクト
+     * @param completeFlg 完了フラグ
      */
     private fun getSubTaskList(task: Task, completeFlg: String): List<SubTask> {
 
@@ -126,26 +120,28 @@ class TodoListServiceImpl(
         )
     }
 
-
     /**
-     * タスク 完了化
+     * タスク完了化
+     * @param taskId タスクID
      */
     private fun completeTask(taskId: Int) {
 
-        val taskList = taskRepository.findAll(
+        val task = taskRepository.findOne(
             Specification.where(
                 SpecificationCreateUtil.equalTaskId<Task>(taskId, TaskKind.TASK)
             )
         ).map {
-            it.completeFlg = Const.FLG_ON
+            it.completeFlg = CommonConst.FLG_ON
             it
         }
 
-        taskRepository.saveAll(taskList)
+        taskRepository.save(task.get())
     }
 
     /**
-     * サブタスク 完了化
+     * サブタスク完了化
+     * @param taskId タスクID
+     * @param subTaskId サブタスクID
      */
     private fun completeSubTask(taskId: Int?, subTaskId: Int?) {
 
@@ -156,51 +152,43 @@ class TodoListServiceImpl(
                 )
             )
         ).map {
-            it.completeFlg = Const.FLG_ON
+            it.completeFlg = CommonConst.FLG_ON
             it
         }
 
         subTaskRepository.saveAll(subTaskList)
     }
 
-
-
     /**
-     * タスク 削除
-     * TODO タスク削除機能実装予定
+     * タスク削除
+     * @param taskId タスクID
      */
-    /*private fun deleteTask(taskId: Int) {
+    private fun deleteTask(taskId: Int) {
 
-        val taskList = taskRepository.findAll(
+        val task = taskRepository.findOne(
             Specification.where(
-                SpecificationCreateUtil.taskIdEqual<Task>(taskId, TaskKind.TASK)
+                SpecificationCreateUtil.equalTaskId<Task>(taskId, TaskKind.TASK)
             )
-        ).map {
-            it.completeFlg = FLG.ON
-            it
-        }
+        )
 
-        taskRepository.deleteAll(taskList)
-    }*/
+        taskRepository.delete(task.get())
+    }
 
     /**
-     * サブタスク 削除
-     * TODO タスク削除機能実装予定
+     * サブタスク削除
+     * @param taskId タスクID
+     * @param subTaskId サブタスクID
      */
-    /*private fun deleteSubTask(taskId: Int?, subTaskId: Int?) {
+    private fun deleteSubTask(taskId: Int?, subTaskId: Int?) {
 
         val subTaskList = subTaskRepository.findAll(
             Specification.where(
-                SpecificationCreateUtil.taskIdEqual<SubTask>(taskId, TaskKind.SUB_TASK)?.and(
-                    SpecificationCreateUtil.subTaskIdEqual<SubTask>(subTaskId)
+                SpecificationCreateUtil.equalTaskId<SubTask>(taskId, TaskKind.SUB_TASK)?.and(
+                    SpecificationCreateUtil.equalSubTaskId<SubTask>(subTaskId)
                 )
             )
-        ).map {
-            it.completeFlg = FLG.ON
-            it
-        }
+        )
 
         subTaskRepository.deleteAll(subTaskList)
-    }*/
-
+    }
 }

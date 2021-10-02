@@ -2,7 +2,37 @@
     display:none;
 }
 
+.show-subtask-area {
+    display:none;
+}
+
 .dotted-line-hr {
 border:none;
 border-top:dashed 1px;
+}
+
+.complete-button {
+    color: #008000;
+    border: none;
+    width: 50%;
+    height: 50%;
+}
+
+.complete-button:hover {
+    background-color: #EEEEEE;
+}
+
+.delete-button {
+    color: #FF0000;
+    border: none;
+    width: 50%;
+    height: 50%;
+}
+
+.delete-button:hover {
+    background-color: #EEEEEE;
+}
+
+.input-error {
+    color:#FF0000;
 }

@@ -1,16 +1,36 @@
 var app = new Vue({
     el: '#capture_app',
     data: {
-        taskList: null,
+        taskList: [],
         // key:サブタスクのカウント value:ネクストサブタスクのカウント
         insertSubtaskCount: {0 : 0},
         inputTask: null,
-        inputSubTaskList: []
+        inputSubTaskList: [],
+        displayCompletedFlg: "0"
     },
     methods: {
         taskComplete: function(event) {
-            // タスク完了処理 サーバ側と非同期通信を行う
-            send(event, 'complete')
+            // タスク完了処理
+            var taskObj = new Object();
+
+            taskObj.id = event.target.id;
+            taskObj.taskKind = event.target.dataset.kind;
+
+            var newTaskList = this.post(event, JSON.stringify(taskObj), 'complete');
+
+            this.taskList = newTaskList;
+        },
+        taskDelete: function(event) {
+            // タスク完了処理
+            var taskObj = new Object();
+
+            taskObj.id = event.target.id;
+            taskObj.taskKind = event.target.dataset.kind;
+            taskObj.completeFlg = this.displayCompletedFlg;
+
+            var newTaskList = this.post(event, JSON.stringify(taskObj), 'delete');
+
+            this.taskList = newTaskList;
         },
         switchInsertArea: function(event) {
 
@@ -30,15 +50,14 @@ var app = new Vue({
                 // ボタンの表示値を「cancel」に変更
                 event.target.innerText = 'cancel'
             } else {
+
                // 登録オブジェクト削除
                this.inputTask = new Object();
+               this.inputSubTaskList = [];
 
                // 登録欄を非表示
                insertAreaNode.style.display = 'none';
-
-               // 入力値を削除
-               document.querySelectorAll('#insert-area .input-element')
-                   .forEach(element => element.value = '');
+               var a = document.querySelectorAll('#insert-area .input-element');
 
                // ボタンの表示値を「add...task」に変更
                event.target.innerText = 'add...task'
@@ -67,93 +86,63 @@ var app = new Vue({
 
         }, insert: function(event) {
             // 登録処理
-
             var taskObj = new Object();
 
-            taskObj.title = this.inputTask.title;
-            taskObj.detail = this.inputTask.detail;
-            taskObj.executionDate = this.inputTask.execution_date;
+            taskObj.title = this.inputTask.title == undefined ? '': this.inputTask.title;
+            taskObj.detail = this.inputTask.detail == undefined ? '': this.inputTask.detail;
+            taskObj.executionDate = this.inputTask.execution_date == undefined ? '': this.inputTask.execution_date;
 
             var subTaskList = this.inputSubTaskList.map(element => {
 
                 var subTaskObj = new Object();
-                subTaskObj.title = element.title;
-                subTaskObj.detail = element.detail;
-                subTaskObj.executionDate = element.execution_date;
+                subTaskObj.title = element.title == undefined ? '': element.title;
+                subTaskObj.detail = element.detail == undefined ? '': element.detail;
+                subTaskObj.executionDate = element.execution_date == undefined ? '': element.execution_date;
 
                 return subTaskObj;
             })
 
             taskObj.subTaskList = subTaskList;
 
-            var newTaskList = insertPost(event, JSON.stringify(taskObj));
+            var newTaskList = this.post(event, JSON.stringify(taskObj), 'insert');
 
             this.taskList = newTaskList;
 
             // 登録・一覧再描画後「chancel」ボタンをクリックし、insertエリアを閉じる
             document.querySelector('#add-task-btn').click();
+        }, post: function(event, obj, name) {
+
+            var xmlHttpRequest = new XMLHttpRequest();
+
+            //【手順4】リクエストメソッドと読み込むファイルのパスを指定する。
+            xmlHttpRequest.open('POST', event.target.baseURI + name, false);
+            xmlHttpRequest.setRequestHeader('Content-Type', 'application/json');
+            xmlHttpRequest.setRequestHeader("Accept","application/json");
+
+            xmlHttpRequest.send(obj);
+
+            if(xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 200) {
+                return JSON.parse(xmlHttpRequest.response);
+           }
+        }, inputErrorCheck(event) {
+
+            // TODO　登録時の入力チェック　
+
+        }, switchCompleted(event) {
+
+            var taskObj = new Object();
+
+            taskObj.completeFlg = this.displayCompletedFlg;
+
+            var newTaskList = this.post(event, JSON.stringify(taskObj), 'switch');
+
+            this.taskList = newTaskList;
         }
-        /*
-          TODO タスク削除処理実装予定
-        taskDelete: function(event) {
-            send(event, 'delete')
-        }
-        */
 
     },
     created: function() {
         // 初期表示時：取得したタスクリストを配列に変換
-        this.taskList = JSON.parse(document.querySelector('#inCompletedTaskList').value);
-        this.inputTask = new Object();
+        this.taskList = JSON.parse(document.querySelector('#in-completed-task-list').value);
+        this.inputTask = [];
     }
 })
-
-
-/*
-  TODO 説明
-*/
-function send(event, operation) {
-
-    var id = event.target.parentNode.id;
-    var taskKind = event.target.parentNode.dataset.kind;
-
-    var xmlHttpRequest = new XMLHttpRequest();
-
-        xmlHttpRequest.onreadystatechange = function() {
-
-            //レスポンスの受信が正常に完了したとき
-            if(this.readyState == 4 && this.status == 200) {
-
-                var removeElem = event.target.parentNode;
-                // 配下の要素を全て削除
-                while (removeElem.firstChild) {
-                    removeElem.removeChild(removeElem.firstChild);
-                }
-            }
-        }
-
-    //【手順3】レスポンスの形式を指定する。
-    xmlHttpRequest.responseType = 'json';
-
-    //【手順4】リクエストメソッドと読み込むファイルのパスを指定する。
-    xmlHttpRequest.open('GET', event.target.baseURI + operation + '/'+ id + '/' +  taskKind);
-    xmlHttpRequest.setRequestHeader('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
-    xmlHttpRequest.send();
-}
-
-
-function insertPost(event, obj) {
-
-    var xmlHttpRequest = new XMLHttpRequest();
-
-    //【手順4】リクエストメソッドと読み込むファイルのパスを指定する。
-    xmlHttpRequest.open('POST', event.target.baseURI + 'insert', false);
-    xmlHttpRequest.setRequestHeader('Content-Type', 'application/json');
-    xmlHttpRequest.setRequestHeader("Accept","application/json");
-
-    xmlHttpRequest.send(obj);
-
-    if(xmlHttpRequest.status == 200) {
-         return JSON.parse(xmlHttpRequest.response);
-    }
-}
