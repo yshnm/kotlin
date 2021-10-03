@@ -1,16 +1,22 @@
 var app = new Vue({
     el: '#capture_app',
     data: {
+        // 一覧表示されているタスクのリスト
         taskList: [],
         // key:サブタスクのカウント value:ネクストサブタスクのカウント
         insertSubtaskCount: {0 : 0},
+        // 登録するタスクデータのオブジェクト
         inputTask: null,
+        // 登録するサブタスクリストんぼオブジェクト
         inputSubTaskList: [],
+        // 一覧表示対象となるタスクの完了フラグ ("0"：未完了タスクの一覧 "1":完了済タスクの一覧)
         displayCompletedFlg: "0"
     },
     methods: {
         taskComplete: function(event) {
-            // タスク完了処理
+            /*
+              タスク完了処理
+            */
             var taskObj = new Object();
 
             taskObj.id = event.target.id;
@@ -21,7 +27,9 @@ var app = new Vue({
             this.taskList = newTaskList;
         },
         taskDelete: function(event) {
-            // タスク完了処理
+            /*
+              タスク削除処理
+            */
             var taskObj = new Object();
 
             taskObj.id = event.target.id;
@@ -33,8 +41,9 @@ var app = new Vue({
             this.taskList = newTaskList;
         },
         switchInsertArea: function(event) {
-
-            // 登録エリア 表示/非表示切り替え
+            /*
+              登録エリア 表示/非表示切り替え
+            */
             var insertAreaNode = document.querySelector('#insert-area');
 
             if(insertAreaNode.style.display == 'none'
@@ -64,7 +73,9 @@ var app = new Vue({
             }
 
         }, addSubtask: function(event) {
-
+            /*
+              サブタスク入力欄追加処理
+            */
             var subtaskAreaNode = document.querySelector('#subtask-area');
 
             // キー(サブタスクのカウント)の最大値
@@ -85,7 +96,9 @@ var app = new Vue({
             this.inputSubTaskList.push(subTaskObj);
 
         }, insert: function(event) {
-            // 登録処理
+            /*
+               登録処理
+            */
             var taskObj = new Object();
 
             taskObj.title = this.inputTask.title == undefined ? '': this.inputTask.title;
@@ -111,7 +124,9 @@ var app = new Vue({
             // 登録・一覧再描画後「chancel」ボタンをクリックし、insertエリアを閉じる
             document.querySelector('#add-task-btn').click();
         }, post: function(event, obj, name) {
-
+            /*
+              コントローラとのAJAXを利用した同期通信
+            */
             var xmlHttpRequest = new XMLHttpRequest();
 
             //【手順4】リクエストメソッドと読み込むファイルのパスを指定する。
@@ -124,12 +139,10 @@ var app = new Vue({
             if(xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 200) {
                 return JSON.parse(xmlHttpRequest.response);
            }
-        }, inputErrorCheck(event) {
-
-            // TODO　登録時の入力チェック　
-
         }, switchCompleted(event) {
-
+　　        /*
+              一覧に表示するタスクリストの切り替え（未完了 or 完了済み）
+            */
             var taskObj = new Object();
 
             taskObj.completeFlg = this.displayCompletedFlg;
