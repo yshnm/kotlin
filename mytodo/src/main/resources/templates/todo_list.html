@@ -2,7 +2,7 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <th:block th:replace="/fragments/common :: common"></th:block>
+    <th:block th:replace="./fragments/common :: common"></th:block>
     <title>my todo</title>
 </head>
 
@@ -13,7 +13,7 @@
 <div class="container">
     <div id="capture_app">
 
-        <th:block th:replace="/fragments/common :: header"></th:block>
+        <th:block th:replace="./fragments/common :: header"></th:block>
         <div class="row">
             <hr/>
 
@@ -178,7 +178,7 @@
         </div>
     </div>
 </div>
-<th:block th:replace="/fragments/common :: script"></th:block>
+<th:block th:replace="./fragments/common :: script"></th:block>
 <script th:src="@{/js/todo_list_vue.js}"></script>
 </body>
 
